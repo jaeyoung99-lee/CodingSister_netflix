@@ -1,0 +1,38 @@
+.banner {
+  height: 40vh;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.banner:before {
+  content: "";
+  background: linear-gradient(to top, black, transparent);
+  position: absolute;
+  left: 0;
+  height: 40vh;
+  width: 100%;
+}
+
+.banner-text-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+  width: 40%;
+}
+
+.banner-text-area > * {
+  z-index: 99;
+}
+
+@media (max-width: 768px) {
+  .banner-text-area p {
+    display: none;
+  }
+}
