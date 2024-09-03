@@ -1,18 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSearchMovieQuery } from "../../hooks/useSearchMovie";
 import { useSearchParams } from "react-router-dom";
 import { Alert, Col, Container, Row, Spinner } from "react-bootstrap";
 import MovieCard from "../../common/MovieCard/MovieCard";
+import ReactPaginate from "react-paginate";
 
 // 경로 2가지
 // 1. nav바에서 클릭해서 온 경우 => popular movie 보여주기
 // 2. keyword를 입력해서 온 경우 => keyword와 관련된 영화들을 보여줌
 
+// 페이지네이션 하는 방법
+// 1. 페이지네이션 설치
+// 2. page state 만들기
+// 3. 페이지네이션 클릭할 때마다 page 바꿔주기
+// 4. page 값이 바뀔 때마다 useSearchMovie에 page까지 넣어서 fetch
+
 const MoviePage = () => {
   const [query, setQuery] = useSearchParams();
+  const [page, setPage] = useState(1);
   const keyword = query.get("q");
-  const { data, isLoading, isError, error } = useSearchMovieQuery({ keyword });
+  const { data, isLoading, isError, error } = useSearchMovieQuery({
+    keyword,
+    page,
+  });
   console.log("data :", data);
+
+  const handlePageClick = ({ selected }) => {
+    setPage(selected + 1);
+  };
 
   if (isLoading) {
     return (
@@ -90,6 +105,27 @@ const MoviePage = () => {
               </Col>
             ))}
           </Row>
+          <ReactPaginate
+            nextLabel="next >"
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={3}
+            marginPagesDisplayed={2}
+            pageCount={data?.total_pages} // 전체 페이지
+            previousLabel="< previous"
+            pageClassName="page-item"
+            pageLinkClassName="page-link"
+            previousClassName="page-item"
+            previousLinkClassName="page-link"
+            nextClassName="page-item"
+            nextLinkClassName="page-link"
+            breakLabel="..."
+            breakClassName="page-item"
+            breakLinkClassName="page-link"
+            containerClassName="pagination"
+            activeClassName="active"
+            renderOnZeroPageCount={null}
+            forcePage={page - 1} // 처음 보여줄 페이지(0부터 시작)
+          />
         </Col>
       </Row>
     </Container>
