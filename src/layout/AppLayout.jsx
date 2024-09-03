@@ -1,19 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Form from "react-bootstrap/Form";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const AppLayout = () => {
+  const [keyword, setKeyword] = useState("");
+  const navigate = useNavigate();
+
+  const searchByKeyword = (event) => {
+    event.preventDefault(); // refresh를 막음
+    // url을 바꿔주기
+    navigate(`/movies?q=${keyword}`);
+    setKeyword("");
+  };
+
   return (
     <div
       style={{ backgroundColor: "black", color: "white", minHeight: "100vh" }}
     >
       <Navbar expand="lg" style={{ backgroundColor: "black", color: "white" }}>
         <Container fluid>
-          <Navbar.Brand href="#">
+          <Navbar.Brand href="/">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg"
               alt="Netflix Logo"
@@ -37,15 +47,21 @@ const AppLayout = () => {
                 Movies
               </Nav.Link>
             </Nav>
-            <Form className="d-flex">
+            <Form className="d-flex" onSubmit={searchByKeyword}>
               <Form.Control
                 type="search"
                 placeholder="Search"
                 className="me-2"
                 aria-label="Search"
                 style={{ backgroundColor: "gray" }}
+                value={keyword}
+                onChange={(event) => setKeyword(event.target.value)}
               />
-              <Button variant="outline-danger" style={{ color: "red" }}>
+              <Button
+                type="submit"
+                variant="outline-danger"
+                style={{ color: "red" }}
+              >
                 Search
               </Button>
             </Form>
