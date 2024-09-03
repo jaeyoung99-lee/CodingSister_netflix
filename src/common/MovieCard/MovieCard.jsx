@@ -1,8 +1,12 @@
 import React from "react";
 import { Badge } from "react-bootstrap";
 import "./MovieCard.style.css";
+import { useMovieGenreQuery } from "../../hooks/useMovieGenre";
 
 const MovieCard = ({ movie }) => {
+  const { data: genreData } = useMovieGenreQuery(); // 콜론(:)은 재정의를 의미
+  console.log("genreData :", genreData);
+
   return (
     <div
       style={{
