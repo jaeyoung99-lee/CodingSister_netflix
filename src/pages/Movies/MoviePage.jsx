@@ -82,7 +82,7 @@ const MoviePage = () => {
               <div style={{ margin: "10px 0" }}>
                 총{" "}
                 <span style={{ color: "red", fontSize: "18px" }}>
-                  {data?.results?.length}
+                  {data?.total_results}
                 </span>
                 건의 검색 결과가 있습니다.
               </div>
