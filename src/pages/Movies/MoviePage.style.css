@@ -1,0 +1,18 @@
+.page-link {
+  color: red;
+  border: 1px solid red;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.page-item.active .page-link {
+  background-color: red;
+  color: white;
+  border: 1px solid red;
+}
+
+.page-link:hover {
+  background-color: #ffcccc;
+  color: red;
+}

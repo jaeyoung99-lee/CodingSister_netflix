@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchMovieQuery } from "../../hooks/useSearchMovie";
 import { useSearchParams } from "react-router-dom";
 import { Alert, Col, Container, Row, Spinner } from "react-bootstrap";
 import MovieCard from "../../common/MovieCard/MovieCard";
 import ReactPaginate from "react-paginate";
+import "./MoviePage.style.css";
 
 // 경로 2가지
 // 1. nav바에서 클릭해서 온 경우 => popular movie 보여주기
@@ -24,6 +25,10 @@ const MoviePage = () => {
     page,
   });
   console.log("data :", data);
+
+  useEffect(() => {
+    setPage(1);
+  }, [keyword]);
 
   const handlePageClick = ({ selected }) => {
     setPage(selected + 1);
