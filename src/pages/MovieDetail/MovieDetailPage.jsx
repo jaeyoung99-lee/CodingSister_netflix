@@ -1,6 +1,16 @@
-import { Alert, Badge, Col, Container, Row, Spinner } from "react-bootstrap";
+import {
+  Alert,
+  Badge,
+  Button,
+  Col,
+  Container,
+  Row,
+  Spinner,
+} from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { useMovieDetailQuery } from "../../hooks/useMovieDetail";
+import { useMovieReviewQuery } from "../../hooks/useMovieReview";
+import { useState } from "react";
 
 const formatCurrencyKRW = (amount) => {
   // 숫자를 만 단위로 변환
@@ -16,8 +26,14 @@ const formatCurrencyKRW = (amount) => {
 const MovieDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, isError, error } = useMovieDetailQuery(id);
+  const {
+    data: review,
+    isLoading: reviewLoading,
+    isError: reviewError,
+  } = useMovieReviewQuery(id);
+  const [showAllReviews, setShowAllReviews] = useState(false);
 
-  if (isLoading) {
+  if (isLoading || reviewLoading) {
     return (
       <div className="spinner-area">
         <Spinner
@@ -32,7 +48,7 @@ const MovieDetailPage = () => {
     );
   }
 
-  if (isError) {
+  if (isError || reviewError) {
     return <Alert variant="danger">{error.message}</Alert>;
   }
 
@@ -41,9 +57,11 @@ const MovieDetailPage = () => {
   }
 
   const genres = data.genres || [];
+  const reviews = review.results || [];
   const budget = data.budget || 0;
 
-  console.log("movie", data);
+  console.log("movie :", data);
+  console.log("review :", review);
 
   return (
     <Container>
@@ -121,6 +139,62 @@ const MovieDetailPage = () => {
             <strong style={{ color: "goldenrod" }}>[제작 국가]</strong>
             <br />
             {data.origin_country[0]}
+          </p>
+          <p>
+            <strong style={{ color: "goldenrod" }}>[리뷰]</strong>
+            {reviews.length > 0 ? (
+              <div>
+                {!showAllReviews ? (
+                  <div>
+                    <Button
+                      variant="link"
+                      onClick={() => setShowAllReviews(true)}
+                      style={{
+                        padding: "0",
+                        display: "block",
+                        marginTop: "1rem",
+                        color: "chocolate",
+                      }}
+                    >
+                      더보기
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    {reviews.map((rev, index) => (
+                      <div key={index} style={{ marginBottom: "1rem" }}>
+                        <strong style={{ color: "yellow" }}>
+                          {rev.author}
+                        </strong>
+                        <p>{rev.content}</p>
+                        {index < reviews.length && (
+                          <hr
+                            style={{
+                              border: "1px solid #ddd",
+                              margin: "1rem 0",
+                            }}
+                          />
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      variant="link"
+                      onClick={() => setShowAllReviews(false)}
+                      style={{
+                        padding: "0",
+                        display: "block",
+                        marginTop: "1rem",
+                        color: "chocolate",
+                      }}
+                    >
+                      접기
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <span>리뷰가 없습니다.</span>
+            )}
           </p>
         </Col>
       </Row>
