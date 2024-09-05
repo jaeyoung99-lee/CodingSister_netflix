@@ -40,7 +40,9 @@ const MovieCard = ({ movie }) => {
         ))}
         <div style={{ fontSize: "10px" }}> ===========================</div>
         <div style={{ fontSize: "10px" }}>
-          <div>평점 : {movie.vote_average} / 10</div>
+          <div>
+            평점 : {movie.vote_average} / 10 (총 {movie.vote_count}명)
+          </div>
           <div>인기도 : {movie.popularity}</div>
           <div>
             연령 :{" "}

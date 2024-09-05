@@ -78,6 +78,10 @@ const MovieDetailPage = () => {
             <br /> {data.release_date}
           </p>
           <p>
+            <strong style={{ color: "goldenrod" }}>[상영 시간]</strong>
+            <br /> {data.runtime}분
+          </p>
+          <p>
             <strong style={{ color: "goldenrod" }}>[줄거리]</strong>
             <br /> {data.overview}
           </p>
@@ -85,7 +89,7 @@ const MovieDetailPage = () => {
           <p>
             <strong style={{ color: "goldenrod" }}>[평점]</strong>
             <br />
-            {data.vote_average} / 10
+            {data.vote_average} / 10 (총 {data.vote_count}명)
           </p>
           <p>
             <strong style={{ color: "goldenrod" }}>[인기도]</strong>
@@ -112,6 +116,11 @@ const MovieDetailPage = () => {
             <strong style={{ color: "goldenrod" }}>[예산]</strong>
             <br />
             {formatCurrencyKRW(data.budget)}
+          </p>
+          <p>
+            <strong style={{ color: "goldenrod" }}>[제작 국가]</strong>
+            <br />
+            {data.origin_country[0]}
           </p>
         </Col>
       </Row>
