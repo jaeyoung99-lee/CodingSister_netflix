@@ -2,10 +2,12 @@ import React from "react";
 import { Badge } from "react-bootstrap";
 import "./MovieCard.style.css";
 import { useMovieGenreQuery } from "../../hooks/useMovieGenre";
+import { useNavigate } from "react-router-dom";
 
 const MovieCard = ({ movie }) => {
   const { data: genreData } = useMovieGenreQuery(); // 콜론(:)은 재정의를 의미
   console.log("genreData :", genreData);
+  const navigate = useNavigate();
 
   // 장르의 id와 매핑하여 장르의 name을 보여주는 함수
   const showGenre = (genreIdList) => {
@@ -14,8 +16,11 @@ const MovieCard = ({ movie }) => {
       const genreObject = genreData.find((genre) => genre.id === id);
       return genreObject.name;
     });
-
     return genreNameList;
+  };
+
+  const showMovieDetailPage = (id) => {
+    navigate(`/movies/${id}`);
   };
 
   return (
@@ -24,6 +29,7 @@ const MovieCard = ({ movie }) => {
         backgroundImage: `url(https://www.themoviedb.org/t/p/w600_and_h900_bestv2${movie.poster_path})`,
       }}
       className="movie-card"
+      onClick={() => showMovieDetailPage(movie.id)}
     >
       <div className="overlay">
         <h2>{movie.title}</h2>
