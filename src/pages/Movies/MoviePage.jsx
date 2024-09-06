@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSearchMovieQuery } from "../../hooks/useSearchMovie";
 import { useSearchParams } from "react-router-dom";
-import { Alert, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Alert, Col, Container, Dropdown, Row, Spinner } from "react-bootstrap";
 import MovieCard from "../../common/MovieCard/MovieCard";
 import ReactPaginate from "react-paginate";
 import "./MoviePage.style.css";
+import { useMovieGenreQuery } from "../../hooks/useMovieGenre";
 
 // 경로 2가지
 // 1. nav바에서 클릭해서 온 경우 => popular movie 보여주기
@@ -24,14 +25,60 @@ const MoviePage = () => {
     keyword,
     page,
   });
+  const [sort, setSort] = useState("desc");
+  const [selectedGenre, setSelectedGenre] = useState("");
+  const { data: genre } = useMovieGenreQuery();
+  const [totalCount, setTotalCount] = useState(0);
+  const [filterCount, setFilterCount] = useState(0);
+
   console.log("data :", data);
+
+  useEffect(() => {
+    if (data) {
+      setTotalCount(data.total_results);
+    }
+  }, [data]);
 
   useEffect(() => {
     setPage(1);
   }, [keyword]);
 
+  useEffect(() => {
+    const sortedMovies = getSortedResults();
+    const filteredMovies = filterMovieGenre(sortedMovies);
+    setFilterCount(filteredMovies.length);
+  }, [data, sort, selectedGenre]);
+
   const handlePageClick = ({ selected }) => {
     setPage(selected + 1);
+  };
+
+  const handleSortChange = (order) => {
+    setSort(order);
+  };
+
+  const handleGenreChange = (genreId) => {
+    setSelectedGenre(genreId);
+  };
+
+  const getSortedResults = () => {
+    if (data && data.results) {
+      return [...data.results].sort((a, b) => {
+        return sort === "desc"
+          ? b.popularity - a.popularity
+          : a.popularity - b.popularity;
+      });
+    }
+    return [];
+  };
+
+  const filterMovieGenre = (movies) => {
+    if (selectedGenre) {
+      return movies.filter((movie) =>
+        movie.genre_ids.includes(parseInt(selectedGenre))
+      );
+    }
+    return movies;
   };
 
   if (isLoading) {
@@ -48,18 +95,50 @@ const MoviePage = () => {
       </div>
     );
   }
+
   if (isError) {
     return <Alert variant="danger">{error.message}</Alert>;
   }
 
-  const isEmptyResults = data?.results?.length === 0;
-  console.log("검색 결과 :", isEmptyResults);
+  const sortedAndFilteredMovies = filterMovieGenre(getSortedResults());
 
   return (
     <Container>
       <Row>
         <Col lg={4} xs={12}>
-          필터
+          <div>
+            <strong style={{ color: "goldenrod" }}>[정렬 기준]</strong>
+            <Dropdown onSelect={handleSortChange}>
+              <Dropdown.Toggle variant="danger" id="dropdown-basic">
+                인기도 {sort === "desc" ? "높은순" : "낮은순"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item eventKey="desc">인기도 높은순</Dropdown.Item>
+                <Dropdown.Item eventKey="asc">인기도 낮은순</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+            <br />
+            <strong style={{ color: "goldenrod", marginTop: "20px" }}>
+              [장르 선택]
+            </strong>
+            <Dropdown onSelect={handleGenreChange}>
+              <Dropdown.Toggle variant="danger" id="genre-dropdown">
+                {selectedGenre
+                  ? genre.find((genre) => genre.id === parseInt(selectedGenre))
+                      ?.name
+                  : "장르 선택"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item eventKey="">모든 장르</Dropdown.Item>
+                {genre.map((genre) => (
+                  <Dropdown.Item key={genre.id} eventKey={genre.id}>
+                    {genre.name}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+          <br />
         </Col>
         <Col lg={8} xs={12}>
           {keyword && (
@@ -71,7 +150,7 @@ const MoviePage = () => {
               "(으)로 검색한 결과입니다.
             </div>
           )}
-          {isEmptyResults ? (
+          {filterCount === 0 && selectedGenre ? (
             <div
               style={{
                 color: "red",
@@ -87,14 +166,14 @@ const MoviePage = () => {
               <div style={{ margin: "10px 0" }}>
                 총{" "}
                 <span style={{ color: "red", fontSize: "18px" }}>
-                  {data?.total_results}
+                  {selectedGenre ? filterCount : totalCount}
                 </span>
                 건의 검색 결과가 있습니다.
               </div>
             )
           )}
           <Row>
-            {data?.results.map((movie, index) => (
+            {sortedAndFilteredMovies.map((movie, index) => (
               <Col
                 key={index}
                 lg={4}
