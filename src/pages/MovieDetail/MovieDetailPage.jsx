@@ -11,6 +11,8 @@ import { useParams } from "react-router-dom";
 import { useMovieDetailQuery } from "../../hooks/useMovieDetail";
 import { useMovieReviewQuery } from "../../hooks/useMovieReview";
 import { useState } from "react";
+import { useMovieRecommendationQuery } from "../../hooks/useMovieRecommendation";
+import MovieCard from "../../common/MovieCard/MovieCard";
 
 const formatCurrencyKRW = (amount) => {
   // 숫자를 만 단위로 변환
@@ -32,8 +34,13 @@ const MovieDetailPage = () => {
     isError: reviewError,
   } = useMovieReviewQuery(id);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const {
+    data: rec,
+    isLoading: recLoading,
+    isError: recError,
+  } = useMovieRecommendationQuery(id);
 
-  if (isLoading || reviewLoading) {
+  if (isLoading || reviewLoading || recLoading) {
     return (
       <div className="spinner-area">
         <Spinner
@@ -48,7 +55,7 @@ const MovieDetailPage = () => {
     );
   }
 
-  if (isError || reviewError) {
+  if (isError || reviewError || recError) {
     return <Alert variant="danger">{error.message}</Alert>;
   }
 
@@ -62,6 +69,7 @@ const MovieDetailPage = () => {
 
   console.log("movie :", data);
   console.log("review :", review);
+  console.log("rec :", rec);
 
   return (
     <Container>
@@ -133,7 +141,7 @@ const MovieDetailPage = () => {
           <p>
             <strong style={{ color: "goldenrod" }}>[예산]</strong>
             <br />
-            {formatCurrencyKRW(data.budget)}
+            {formatCurrencyKRW(budget)}
           </p>
           <p>
             <strong style={{ color: "goldenrod" }}>[제작 국가]</strong>
@@ -197,6 +205,27 @@ const MovieDetailPage = () => {
             )}
           </p>
         </Col>
+      </Row>
+      <hr style={{ margin: "2rem 0" }} />
+      <strong style={{ color: "goldenrod" }}>[추천 영화]</strong>
+      <br />
+      <br />
+      <Row>
+        {rec?.length > 0 ? (
+          rec.map((movie) => (
+            <Col
+              key={movie.id}
+              md={3}
+              sm={6}
+              xs={12}
+              style={{ marginBottom: "20px" }}
+            >
+              <MovieCard movie={movie} /> {/* MovieCard 컴포넌트 사용 */}
+            </Col>
+          ))
+        ) : (
+          <p>추천할 영화가 없습니다.</p>
+        )}
       </Row>
     </Container>
   );
