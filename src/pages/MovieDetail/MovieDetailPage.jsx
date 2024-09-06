@@ -4,6 +4,7 @@ import {
   Button,
   Col,
   Container,
+  Modal,
   Row,
   Spinner,
 } from "react-bootstrap";
@@ -13,6 +14,9 @@ import { useMovieReviewQuery } from "../../hooks/useMovieReview";
 import { useState } from "react";
 import { useMovieRecommendationQuery } from "../../hooks/useMovieRecommendation";
 import MovieCard from "../../common/MovieCard/MovieCard";
+import { useMovieTrailerQuery } from "../../hooks/useMovieTrailer";
+import YouTube from "react-youtube";
+import "./MovieDetailPage.style.css";
 
 const formatCurrencyKRW = (amount) => {
   // 숫자를 만 단위로 변환
@@ -27,20 +31,34 @@ const formatCurrencyKRW = (amount) => {
 
 const MovieDetailPage = () => {
   const { id } = useParams();
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const { data, isLoading, isError, error } = useMovieDetailQuery(id);
   const {
     data: review,
     isLoading: reviewLoading,
     isError: reviewError,
   } = useMovieReviewQuery(id);
-  const [showAllReviews, setShowAllReviews] = useState(false);
   const {
     data: rec,
     isLoading: recLoading,
     isError: recError,
   } = useMovieRecommendationQuery(id);
+  const {
+    data: trailer,
+    isLoading: trailerLoading,
+    isError: trailerError,
+  } = useMovieTrailerQuery(id);
 
-  if (isLoading || reviewLoading || recLoading) {
+  const openModal = () => {
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  if (isLoading || reviewLoading || recLoading || trailerLoading) {
     return (
       <div className="spinner-area">
         <Spinner
@@ -55,7 +73,7 @@ const MovieDetailPage = () => {
     );
   }
 
-  if (isError || reviewError || recError) {
+  if (isError || reviewError || recError || trailerError) {
     return <Alert variant="danger">{error.message}</Alert>;
   }
 
@@ -70,6 +88,7 @@ const MovieDetailPage = () => {
   console.log("movie :", data);
   console.log("review :", review);
   console.log("rec :", rec);
+  console.log("trailer :", trailer);
 
   return (
     <Container>
@@ -98,6 +117,13 @@ const MovieDetailPage = () => {
                 style={{ width: "24px", height: "24px" }}
               />
             )}
+          </p>
+          <p>
+            <strong style={{ color: "goldenrod" }}>[예고편]</strong>
+            <br />
+            <Button variant="danger" onClick={openModal}>
+              예고편 보기
+            </Button>
           </p>
           <p>
             <strong style={{ color: "goldenrod" }}>[개봉일]</strong>
@@ -227,6 +253,41 @@ const MovieDetailPage = () => {
           <p>추천할 영화가 없습니다.</p>
         )}
       </Row>
+
+      <Modal
+        show={showModal}
+        onHide={closeModal}
+        centered
+        size="lg"
+        className="custom-modal"
+      >
+        <Modal.Header style={{ placeContent: "center" }}>
+          <Modal.Title>
+            <span style={{ color: "red" }}>"{data.title}"</span> 예고편
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <YouTube
+            videoId={
+              trailer.find(
+                (video) => video.name.toLowerCase() === "official trailer"
+              )?.key || trailer[0]?.key
+            }
+            opts={{
+              height: "390",
+              width: "100%",
+              playerVars: {
+                autoplay: 1,
+              },
+            }}
+          />
+        </Modal.Body>
+        <Modal.Footer style={{ placeContent: "center" }}>
+          <Button variant="danger" onClick={closeModal}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };
